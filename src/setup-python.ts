@@ -6,20 +6,24 @@ import * as vscode from "vscode";
 //Called on extension startup. Executes a script that sets up a virtual python environment and installs necessary dependencies into it.
 export function SetUpPython() {
     const scriptDir = path.join(rootDir, "voice-server");
-    exec(path.join(scriptDir, "venv-setup.bat"), (error: ExecException | null, stdout: string, stderr: string) => {
-        if (error) {
-            console.error(`exec error: ${error}`);
-            return;
-        }
+    console.log(`"${path.join(scriptDir, "venv-setup.bat")}"`);
+    exec(
+        `"${path.join(scriptDir, "venv-setup.bat")}"`,
+        (error: ExecException | null, stdout: string, stderr: string) => {
+            if (error) {
+                console.error(`exec error: ${error}`);
+                return;
+            }
 
-        if (stdout.length) {
-            console.log(`stdout: ${stdout}`);
-        }
+            if (stdout.length) {
+                console.log(`stdout: ${stdout}`);
+            }
 
-        if (stderr.length) {
-            console.error(`stderr: ${stderr}`);
+            if (stderr.length) {
+                console.error(`stderr: ${stderr}`);
+            }
         }
-    });
+    );
 }
 
 //Runs the main python script for listening.
