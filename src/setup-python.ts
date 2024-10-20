@@ -6,7 +6,6 @@ import * as vscode from "vscode";
 //Called on extension startup. Executes a script that sets up a virtual python environment and installs necessary dependencies into it.
 export function SetUpPython() {
     const scriptDir = path.join(rootDir, "voice-server");
-    console.log(`"${path.join(scriptDir, "venv-setup.bat")}"`);
     exec(
         `"${path.join(scriptDir, "venv-setup.bat")}"`,
         (error: ExecException | null, stdout: string, stderr: string) => {
@@ -36,7 +35,7 @@ export function StartServer() {
         env: { ...process.env },
         stdio: ["ignore", "pipe", "pipe"],
     };
-    const server = spawn(`"${interpretorPath}"`, [scriptPath], options);
+    const server = spawn(`${interpretorPath}`, [scriptPath], options);
 
     //Currently, data from the python program is just piped to the extension.
     server.stdout?.on("data", (bytes) => {
