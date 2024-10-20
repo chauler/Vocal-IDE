@@ -9,8 +9,8 @@ with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source)
         print("Say something!", flush=True)
         audio = r.listen(source, timeout=7, phrase_time_limit=5)
-        input = r.recognize_google(audio, language="en-US")
         try:
+            input = r.recognize_google(audio, language="en-US")
             print(f"Data:{input}", flush=True)
         except sr.UnknownValueError:
             print("Could not understand audio", file=sys.stderr)
