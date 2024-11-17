@@ -1,18 +1,13 @@
-import sys
-import speech_recognition as sr
+import os
+import websocket
+import json
 
-r = sr.Recognizer()
+DEFAULT_PORT = 8080
 
-with sr.Microphone() as source:
-    input = ""
-    while input.lower() != "exit":
-        r.adjust_for_ambient_noise(source)
-        print("Say something!", flush=True)
-        audio = r.listen(source, timeout=7, phrase_time_limit=5)
-        input = r.recognize_google(audio, language="en-US")
-        try:
-            print(f"Data:{input}", flush=True)
-        except sr.UnknownValueError:
-            print("Could not understand audio", file=sys.stderr)
-        except sr.RequestError as e:
-            print(f"Could not request results from recognizer; {e}", file=sys.stderr)
+
+def send_message(message):
+    ws = websocket.WebSocket()
+    ws.connect(
+        f"ws://localhost:{int(os.environ.get("SERVER_PORT", DEFAULT_PORT))}")
+    ws.send(json.dumps(message))
+    ws.close()

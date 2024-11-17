@@ -4,3 +4,5 @@ node_modules
 .vscode-test/
 *.vsix
 voice-server/venv
+.copilot_token
+voice-server/__pycache__
