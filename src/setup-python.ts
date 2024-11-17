@@ -72,7 +72,7 @@ export function StartServer() {
     };
 
     vscode.commands.executeCommand("setContext", "vocal-ide.isListening", true);
-    const server = spawn(`"${interpretorPath}"`, [scriptPath], options);
+    const server = spawn(`${interpretorPath}`, [scriptPath], options);
 
     //Currently, data from the python program is just piped to the extension.
     server.stdout?.on("data", (bytes) => {
