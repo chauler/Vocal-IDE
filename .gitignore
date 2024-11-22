@@ -5,4 +5,4 @@ node_modules
 *.vsix
 voice-server/venv
 .copilot_token
-voice-server/__pycache__
+__pycache__

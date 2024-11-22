@@ -28,7 +28,7 @@ export function SetUpPython() {
 }
 
 //Runs the main python script for listening.
-export function StartServer() {
+export function StartServer(mode: "COPILOT" | "COMPILER" | "OTHER" = "OTHER") {
     const wss = new WebSocketServer({ port: 8080 });
 
     const routeHandlers: Record<string, (arg0: Record<string, unknown>) => void> = {
@@ -67,33 +67,19 @@ export function StartServer() {
     const scriptPath = path.join(rootDir, "voice-server", "main.py");
     const options: SpawnOptions = {
         cwd: rootDir,
-        env: { ...process.env, SERVER_PORT: "8080", MODE: "COPILOT" },
+        env: { ...process.env, SERVER_PORT: "8080", MODE: mode },
         stdio: ["ignore", "pipe", "pipe"],
     };
 
     vscode.commands.executeCommand("setContext", "vocal-ide.isListening", true);
     const server = spawn(`${interpretorPath}`, [scriptPath], options);
 
-    //Currently, data from the python program is just piped to the extension.
     server.stdout?.on("data", (bytes) => {
-        //Convert bytes to text and parse it. We currently distinguish control statements like error messages from actual output with the 'Data:' prefix.
-        const inputString: string = bytes.toString("utf8");
-        console.log(inputString);
+        console.log(`stdout: ${bytes.toString("utf8")}`);
+    });
 
-        const data = inputString.match(/^Data:{(?<data>.*)}/s);
-        const auth = inputString.match(/^Auth:{(?<auth>.*)}/);
-        const message = inputString.replace(/^Data:{(?<data>.*)}/, "").replace(/^Auth:{(?<auth>.*)}/, "");
-
-        if (auth && auth.groups?.auth) {
-            //vscode.window.showInformationMessage(new vscode.MarkdownString(auth.groups.auth).value, "Dismiss");
-        }
-
-        //This should probably be made more future-proof
-        if (data && data.groups?.data) {
-            console.log(`RESULT: ${data.groups.data}`);
-            vscode.commands.executeCommand("vocal-ide.insertText", data.groups.data);
-        }
-        console.log(message);
+    server.stderr?.on("data", (bytes) => {
+        console.error(`stderr: ${bytes.toString("utf8")}`);
     });
 
     server.on("close", (code, signal) => {

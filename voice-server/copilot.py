@@ -1,4 +1,5 @@
-import threading
+import sys
+import speech_recognition as sr
 import requests
 import json
 import time
@@ -170,6 +171,48 @@ def authenticate():
 
 def watch_authentication(callback):
     authenticator.watch_authentication(callback)
+
+
+def copilot_listen():
+    r = sr.Recognizer()
+
+    with sr.Microphone() as source:
+        input = ""
+        while True:
+            # Grab initial input
+            r.adjust_for_ambient_noise(source, duration=2)
+            send_message({"route": "message",
+                          "data": {"message": 'Say something! Say "Exit" to stop.'}})
+            audio = r.listen(source, timeout=7, phrase_time_limit=5)
+            try:
+                input = r.recognize_google(audio, language="en-US")
+            except sr.UnknownValueError:
+                print("Could not understand audio", file=sys.stderr)
+
+            if input == "exit":
+                print("Exiting...", flush=True)
+                break
+
+            prompt = input
+            while True:
+                # Continue existing prompt
+                print(prompt, flush=True)
+                completion = copilot.HandleInput(prompt)
+                prompt += completion
+                print(f"Data:{{{completion}\n}}", flush=True)
+                send_message({"route": "message",
+                              "data": {"message": 'Continue? ("Yes"/"No")'}})
+                while True:
+                    try:
+                        audio = r.listen(source, timeout=10,
+                                         phrase_time_limit=3)
+                        input = r.recognize_google(audio, language="en-US")
+                    except sr.UnknownValueError:
+                        print("Could not understand audio", file=sys.stderr)
+                        continue
+                    break
+                if input == "no":
+                    break
 
 
 def main():

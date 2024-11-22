@@ -4,7 +4,7 @@ import { SetUpPython, StartServer } from "./setup-python";
 export function activate(context: vscode.ExtensionContext) {
     SetUpPython();
     const listeningCommand = vscode.commands.registerCommand("vocal-ide.startListening", () => {
-        StartServer();
+        StartServer("COMPILER");
     });
 
     const insertTextCommand = vscode.commands.registerTextEditorCommand(
