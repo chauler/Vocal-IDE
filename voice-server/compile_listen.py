@@ -175,8 +175,6 @@ def t_NAME(t):
 
 lexer = lex.lex(debug=True)
 
-start = 'statement'
-
 def p_statements(p):
     """statements : 
                   | statement statements"""
@@ -200,8 +198,13 @@ def p_statement(p):
 
 def p_simple_stmt(p):
     """simple_stmt : expression
-                   | assignment"""
+                   | assignment
+                   | return_stmt"""
     p[0] = p[1]
+
+def p_return_stmt(p):
+    """return_stmt : RETURN expression"""
+    p[0] = f"return {p[2]}"
 
 def p_compound_stmt(p):
     """compound_stmt : if_stmt"""

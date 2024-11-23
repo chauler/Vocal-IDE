@@ -6,3 +6,4 @@ node_modules
 voice-server/venv
 .copilot_token
 __pycache__
+parser.out
