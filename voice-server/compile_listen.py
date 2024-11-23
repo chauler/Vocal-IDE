@@ -137,11 +137,11 @@ reserved = {
     'open': 'OPEN',
     'close': 'CLOSE',
     'parentheses': 'PARENTHESES',
+    'start': 'START',
+    'end': 'END',
 }
 
 tokens = [
-            'MINUS', 
-            'TIMES', 
             'NUMBER', 
             'NAME',
             'NE',
@@ -155,6 +155,7 @@ tokens = [
             'SHIFT_LEFT',
             'SHIFT_RIGHT',
             'DOT',
+            'INDENT',
           ] + list(reserved.values())
 
 t_ignore = ' \t'
@@ -174,21 +175,53 @@ def t_NAME(t):
 
 lexer = lex.lex(debug=True)
 
+start = 'statement'
+
+def p_statements(p):
+    """statements : 
+                  | statement statements"""
+    if len(p) == 1:
+        p[0] = ""
+    else:
+        p[0] = f"{p[1]}\n{p[2]}"
+
+def p_simple_stmts(p):
+    """simple_stmts : 
+                    | simple_stmt simple_stmts"""
+    if len(p) == 1:
+        p[0] = ""
+    else:
+        p[0] = f"{p[1]}\n{p[2]}"
+
 def p_statement(p):
-    """statement : simple_stmt"""
+    """statement : simple_stmt
+                 | compound_stmt"""
     p[0] = p[1]
 
 def p_simple_stmt(p):
-    """simple_stmt : expression"""
+    """simple_stmt : expression
+                   | assignment"""
     p[0] = p[1]
 
-# def p_compound_stmt(p):
-#     """compound_stmt : if_stmt
-#                       | function_def
-#                       | class_def
-#                       | while_stmt
-#                       | for_stmt"""
-#     return p[0]
+def p_compound_stmt(p):
+    """compound_stmt : if_stmt"""
+    p[0] = p[1]
+
+def p_if_stmt(p):
+    """if_stmt : IF expression START block END"""
+    p[0] = f"if {p[2]}:\n{p[4]}"
+
+def p_block(p):
+    """block : 
+            | simple_stmt block"""
+    if len(p) == 1:
+        p[0] = ""
+    else:
+        p[0] = f"\t{p[1]}\n{p[2]}"
+
+def p_assignment(p):
+    """assignment : NAME ASSIGN expression"""
+    p[0] = f"{p[1]} = {p[3]}"
 
 def p_expression(p):
     """expression : disjunction"""

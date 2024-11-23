@@ -75,7 +75,7 @@ export function StartServer(mode: "COPILOT" | "COMPILER" | "OTHER" = "OTHER") {
     const server = spawn(`${interpretorPath}`, [scriptPath], options);
 
     server.stdout?.on("data", (bytes) => {
-        console.log(`stdout: ${bytes.toString("utf8")}`);
+        console.log(`stdout: \n${bytes.toString("utf8")}`);
     });
 
     server.stderr?.on("data", (bytes) => {
