@@ -4,6 +4,10 @@ import { SetUpPython, StartServer } from "./setup-python";
 export function activate(context: vscode.ExtensionContext) {
     SetUpPython();
     const listeningCommand = vscode.commands.registerCommand("vocal-ide.startListening", () => {
+        StartServer("COPILOT");
+    });
+
+    const compileCommand = vscode.commands.registerCommand("vocal-ide.compile", () => {
         StartServer("COMPILER");
     });
 

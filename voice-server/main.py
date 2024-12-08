@@ -11,6 +11,6 @@ if __name__ == "__main__":
         copilot.watch_authentication(copilot_listen)
         copilot.authenticate()
     elif mode == "COMPILER":
-        compile_listen(r"if x equals 3 start var assign y greater equals x divide 5 plus sampleVariable x assign 10 equals 5 return z end x assign 5 return x")
+        compile_listen(r"x assign 5 if x equals 3 var assign y greater equals x divide 5 plus sampleVariable x assign 10 equals 5 return z end return x")
     elif mode == "OTHER":
         basic_listen()

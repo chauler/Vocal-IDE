@@ -156,6 +156,7 @@ tokens = [
             'SHIFT_RIGHT',
             'DOT',
             'INDENT',
+            'UNDERSCORE',
           ] + list(reserved.values())
 
 t_ignore = ' \t'
@@ -166,6 +167,7 @@ t_BITWISE_AND = r'&'
 t_SHIFT_LEFT = r'<<'
 t_SHIFT_RIGHT = r'>>'
 t_DOT = r'\.'
+t_UNDERSCORE = r'_'
 
 
 def t_NAME(t):
@@ -394,17 +396,54 @@ def p_RPAREN(p):
     """RPAREN : CLOSE PARENTHESES"""
     p[0] = ")"
 
+def p_error(p):
+    raise SyntaxError(f"Syntax error at {p.value}")
+
+# def p_id(p):
+#     """id : 
+#         | START NAME ID END
+#         | NAME"""
+#     p[0] = p[1]
+
+# def p_id_connector(p):
+#     """id_connector : 
+#                     | DOT
+#                     | UNDERSCORE"""
+#     p[0] = p[1]
+
 parser = yacc.yacc(debug=True)
 
 #Currently just used for testing the parser with a hardcoded input from main.py
 def compile_listen(parser_input):
-    result = parser.parse(parser_input, lexer=lexer)
-    print(result)
-    send_message({"route": "message",
-                  "data": {"text": result}})
-    return
-
     r = sr.Recognizer()
+
+    try:
+        with sr.Microphone() as source:
+            r.adjust_for_ambient_noise(source)
+            while(True):
+                send_message({"route": "message",
+                                "data": {"message": 'Listening...'}})
+                try:
+                    audio = r.listen(source, timeout=12, phrase_time_limit=12)
+                    cmd = r.recognize_google(audio)
+                    if cmd == "exit":
+                        return
+                    break
+
+                except (Exception, sr.exceptions.WaitTimeoutError) as e:
+                    if type(e) != sr.exceptions.WaitTimeoutError and type(e) != sr.exceptions.UnknownValueError:
+                        send_message({"route": "message",
+                                    "data": {"message": 'We could not understand the audio input.'}})
+
+
+        result = parser.parse(cmd, lexer=lexer)
+        send_message({"route": "data", "data": {"message": result}})
+    except SyntaxError as e:
+        send_message({"route": "message", "data": {"message": f"We couldn't produce correct code with what we heard. What we heard: \"{parser_input}\". Error: {e}"}})
+    except OSError:
+        send_message({"route": "message", "data": {"message": 'Microphone not detected. Please check your microphone connection.'}})
+        exit(0)
+    return
 
     try:
         with sr.Microphone() as source:

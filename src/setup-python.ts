@@ -39,7 +39,7 @@ export function StartServer(mode: "COPILOT" | "COMPILER" | "OTHER" = "OTHER") {
             );
         },
         data: (message) => {
-            console.log(`data: ${util.inspect(message)}`);
+            vscode.commands.executeCommand("vocal-ide.insertText", message.message);
         },
         message: (message) => {
             if (typeof message.message === "string") {
@@ -75,7 +75,7 @@ export function StartServer(mode: "COPILOT" | "COMPILER" | "OTHER" = "OTHER") {
     const server = spawn(`${interpretorPath}`, [scriptPath], options);
 
     server.stdout?.on("data", (bytes) => {
-        console.log(`stdout: \n${bytes.toString("utf8")}`);
+        //console.log(`stdout: \n${bytes.toString("utf8")}`);
     });
 
     server.stderr?.on("data", (bytes) => {

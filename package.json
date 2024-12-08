@@ -24,6 +24,10 @@
                 "command": "vocal-ide.listening",
                 "title": "Listening",
                 "icon": "./res/green-circle.svg"
+            },
+            {
+                "command": "vocal-ide.compile",
+                "title": "Compile and Listen"
             }
         ],
         "menus": {

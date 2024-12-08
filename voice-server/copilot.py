@@ -1,10 +1,36 @@
+# This file is a modified version of the "copilot api" project by B00TK1D, which can be found at https://github.com/B00TK1D/copilot-api
+# The original project created an HTTP server for the copilot API,
+# and I have modified it to be used as a module that could be imported, with a single class
+# that wraps the original functionality.
+# The original project comes with the following license:
+# MIT License
+
+# Copyright (c) 2024 B00TK1D
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import sys
 import speech_recognition as sr
 import requests
 import json
 import time
 from server import send_message
-
 
 class CopilotAuthenticator:
     def __init__(self):
@@ -197,9 +223,11 @@ def copilot_listen():
             while True:
                 # Continue existing prompt
                 print(prompt, flush=True)
-                completion = copilot.HandleInput(prompt)
+                completion = HandleInput(prompt)
                 prompt += completion
-                print(f"Data:{{{completion}\n}}", flush=True)
+                #print(f"Data:{{{completion}\n}}", flush=True)
+                send_message({"route": "data",
+                              "data": {"message": completion}})
                 send_message({"route": "message",
                               "data": {"message": 'Continue? ("Yes"/"No")'}})
                 while True:
@@ -210,7 +238,8 @@ def copilot_listen():
                     except sr.UnknownValueError:
                         print("Could not understand audio", file=sys.stderr)
                         continue
-                    break
+                    if input == "yes" or input == "no":
+                        break
                 if input == "no":
                     break
 
